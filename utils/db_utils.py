@@ -24,13 +24,12 @@ def fetch_data(query: str, params: Optional[Dict[str, Any]] = None) -> pd.DataFr
     if not query or not isinstance(query, str):
         st.error("A query SQL deve ser uma string não vazia.")
         return pd.DataFrame()
-    
+
     try:
         conn = get_db_connection()
-        # Usa text() apenas para queries com parâmetros
-        if params:
-            return conn.session.execute(text(query), params).fetchall()
-        return conn.query(query)
+        # CORREÇÃO: A query agora é executada com a sintaxe de placeholder correta
+        df = pd.read_sql(query, conn.engine, params=params)
+        return df
     except Exception as e:
         st.error(f"Erro ao executar query: {str(e)}")
         return pd.DataFrame()
@@ -42,7 +41,7 @@ def execute_query(query: str, params: Optional[Dict[str, Any]] = None) -> bool:
     if not query or not isinstance(query, str):
         st.error("A query SQL deve ser uma string não vazia.")
         return False
-    
+
     try:
         conn = get_db_connection()
         with conn.session as session:

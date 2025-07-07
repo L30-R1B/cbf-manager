@@ -26,15 +26,17 @@ def check_login(login: str, password: str) -> tuple[bool, Optional[str]]:
     if not login or not password:
         return False, None
 
-    query = "SELECT senha, tipo FROM pessoas WHERE login = %(login)s"
-    params = {'login': login}
+    # CORREÇÃO: A sintaxe do placeholder foi ajustada de %(login)s para %s
+    # e a forma de passar o parâmetro foi alterada para uma tupla.
+    query = "SELECT senha, tipo FROM pessoas WHERE login = %s"
+    params = (login,)
     user_data = fetch_data(query, params=params)
 
     if not user_data.empty:
         hashed_password_from_db = user_data['senha'].iloc[0]
         user_role = user_data['tipo'].iloc[0]
-        
+
         if verify_password(password, hashed_password_from_db):
             return True, user_role
-            
+
     return False, None
