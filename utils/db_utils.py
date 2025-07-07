@@ -14,19 +14,20 @@ def get_db_connection():
 @st.cache_data(ttl=600)
 def fetch_data(query: str, params: dict = None):
     """
-    Executa uma query de LEITURA (SELECT) e retorna os resultados como um DataFrame.
-    Esta é a forma mais compatível de usar st.connection com pandas.
+    Executa uma query de LEITURA (SELECT) usando o método .query() da conexão,
+    que é a forma recomendada e mais robusta para retornar um DataFrame.
     """
     conn = get_db_connection()
-    # Passa o objeto de conexão do Streamlit diretamente para o pandas.
-    df = pd.read_sql(query, conn, params=params)
+    # Usa o método .query() do objeto de conexão do Streamlit, que lida
+    # com os parâmetros e retorna um DataFrame diretamente.
+    df = conn.query(query, params=params)
     return df
 
 def execute_query(query: str, params: dict = None):
     """Executa uma query de ESCRITA (INSERT, UPDATE, DELETE)."""
     conn = get_db_connection()
     with conn.session as s:
-        s.execute(text(query), params)
+        s.execute(text(query), params=params)
         s.commit()
     # Limpa todos os caches de dados para garantir que as novas informações sejam exibidas
     st.cache_data.clear()
