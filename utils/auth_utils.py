@@ -4,6 +4,7 @@
 # ==============================================================================
 import bcrypt
 from .db_utils import fetch_data
+from typing import Optional
 
 def hash_password(password: str) -> bytes:
     """Gera o hash de uma senha usando bcrypt."""
@@ -17,7 +18,7 @@ def verify_password(plain_password: str, hashed_password_str: str) -> bool:
     except (ValueError, TypeError):
         return False
 
-def check_login(login, password):
+def check_login(login: str, password: str) -> tuple[bool, Optional[str]]:
     """
     Valida as credenciais de um usuário contra o banco de dados.
     Retorna (True, 'tipo_usuario') ou (False, None).
@@ -26,7 +27,8 @@ def check_login(login, password):
         return False, None
 
     query = "SELECT senha, tipo FROM pessoas WHERE login = %(login)s"
-    user_data = fetch_data(query, params={'login': login})
+    params = {'login': login}
+    user_data = fetch_data(query, params=params)
 
     if not user_data.empty:
         hashed_password_from_db = user_data['senha'].iloc[0]
