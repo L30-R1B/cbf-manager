@@ -22,7 +22,7 @@ def fetch_data(query: str, params: dict = None):
     with conn.session as s:
         # Usamos pd.read_sql com a conexão da sessão do SQLAlchemy
         # e o construtor text() para garantir compatibilidade.
-        df = pd.read_sql(text(query), s.connection(), params=params)
+        df = pd.read_sql(text(query), s, params=params)
     return df
 
 def execute_query(query: str, params: dict = None):
