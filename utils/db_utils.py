@@ -11,18 +11,15 @@ def get_db_connection():
     """Estabelece e cacheia a conexão com o banco de dados usando st.connection."""
     return st.connection("mysql_db", type="sql")
 
-# A anotação @st.cache_data é a forma moderna e recomendada de fazer cache
 @st.cache_data(ttl=600)
 def fetch_data(query: str, params: dict = None):
     """
     Executa uma query de LEITURA (SELECT) e retorna os resultados como um DataFrame.
-    Esta versão é mais robusta e usa a sessão do SQLAlchemy diretamente com o pandas.
+    Esta é a forma mais compatível de usar st.connection com pandas.
     """
     conn = get_db_connection()
-    with conn.session as s:
-        # Usamos pd.read_sql com a conexão da sessão do SQLAlchemy
-        # e o construtor text() para garantir compatibilidade.
-        df = pd.read_sql(text(query), s, params=params)
+    # Passa o objeto de conexão do Streamlit diretamente para o pandas.
+    df = pd.read_sql(query, conn, params=params)
     return df
 
 def execute_query(query: str, params: dict = None):
